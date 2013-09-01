@@ -447,3 +447,92 @@ li:hover em { display : none; }
 	margin-top: 5px;
 	padding: 0 5px 2px;
 }
+
+.bookmarks_list, #firstrun {
+	left: 340px;
+	padding-bottom: 50px;
+	padding-top: 65px;
+}
+.bookmark_single {
+	padding: 0.2em 3em;
+}
+#add_url {
+	width:14em;
+}
+.bookmark_single{
+	height: 28px;
+	min-height: 28px;
+}
+.bookmark_single.folder{
+	background-image:url(/core/img/filetypes/folder.png);background-position: 1em .5em;
+	background-repeat: no-repeat;
+}
+.bookmark_title{
+	margin-top: 3px;
+}
+.bookmark_date {
+	top: 6px;
+}
+.bookmark_title a {
+	max-width: 740px;
+	width: auto;
+}
+.bookmark_desc, .bookmark_tags {
+	display: none;
+}
+#tags_settings label {
+	margin-top: 1em;
+	margin-bottom: 0.7em;
+	display: block;
+	padding-left: 1em;
+}
+
+.bookmark_actions {
+	bottom: 4px;
+}
+
+#rightcontent #controls {
+	margin-top: 24px;
+	left: 336px;
+}
+.bookmark_edit.bookmark_edit_btn {
+	position:absolute;
+	right: 240px;
+	top: 10px;
+	font-size: 10px;
+	height: 15px;
+	width: 67px;
+	vertical-align: middle;
+}
+.bookmark_edit.bookmark_edit_btn a, .bookmark_edit.bookmark_edit_btn img {
+	float: left;
+}
+.bookmark_edit.bookmark_edit_btn a {
+	padding: 3px 5px;
+	line-height: 1;
+	opacity: 0.3
+}
+.bookmark_single:hover .bookmark_edit a {
+	font-weight: normal;
+}
+.bookmark_edit.bookmark_edit_btn:hover a, .bookmark_edit.bookmark_edit_btn:hover img.svg {
+	opacity: 1;
+}
+#controls #upload {
+	position: fixed;
+	right: 0;
+	width: 28px;
+	height: 17px;
+}
+#upload a {
+	position: relative;
+	display: block;
+	width: 100%;
+	height: 27px;
+	cursor: pointer;
+	z-index: 10;
+	background-image: url('/core/img/actions/upload.svg');
+	background-repeat: no-repeat; background-position: 7px 1px;
+	opacity: 0.65;
+}
+

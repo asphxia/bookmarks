@@ -3,6 +3,7 @@ var bookmarks_loading = false;
 var dialog;
 var bookmarks_sorting = 'bookmarks_sorting_recent';
 var fullTags = [];
+var breadcrumb = [];
 $(document).ready(function() {
 	watchUrlField();
 	$('#bm_import').change(attachSettingEvent);
@@ -21,6 +22,18 @@ $(document).ready(function() {
 		onTagFinishRemoved: filterTagsChanged,
 		placeholderText: t('bookmark', 'Filter by tag')
 	}).tagit('option', 'onTagAdded', filterTagsChanged);
+	$('#home').bind('click', function() { 
+		$('.bookmarks_list').empty();
+		bookmarks_page = 0;
+		breadcrumb = [];
+		getBookmarks(0);
+	});
+	$('#up').bind('click', function() { 
+		$('.bookmarks_list').empty();
+		bookmarks_page = 0;
+		breadcrumb.pop();
+		getBookmarks(breadcrumb.pop());
+	});
 	getBookmarks();
 });
 
@@ -69,19 +82,22 @@ function filterTagsChanged()
 	bookmarks_page = 0;
 	getBookmarks();
 }
-function getBookmarks() {
+function getBookmarks(parent) {
 	if(bookmarks_loading) {
 		//have patience :)
 		return;
 	}
 	bookmarks_loading = true;
 	//Update Rel Tags if first page
+	if (parent)
+		breadcrumb.push(parent);
+
 	if(bookmarks_page == 0) {
 
 		$.ajax({
 			type: 'GET',
 			url: OC.filePath('bookmarks', 'ajax', 'updateList.php'),
-			data: { type:'rel_tags', tag: $('#bookmarkFilterTag').val(), page:bookmarks_page, sort:bookmarks_sorting },
+			data: { type:'rel_tags', tag: $('#bookmarkFilterTag').val(), page:bookmarks_page, sort:bookmarks_sorting, parent:parent },
 			success: function(tags){
 				$('.tag_list').empty();
 				for(var i in tags.data) {
@@ -98,7 +114,7 @@ function getBookmarks() {
 	$.ajax({
 		type: 'GET',
 		url: OC.filePath('bookmarks', 'ajax', 'updateList.php'),
-		data: { type:'bookmark', tag: $('#bookmarkFilterTag').val(), page:bookmarks_page, sort:bookmarks_sorting },
+		data: { type:'bookmark', tag: $('#bookmarkFilterTag').val(), page:bookmarks_page, sort:bookmarks_sorting, parent:parent },
 		success: function(bookmarks){
 			if (bookmarks.data.length) {
 				bookmarks_page += 1;
@@ -272,7 +288,7 @@ function updateBookmarksList(bookmark, position) {
 		if(tags[i] != '')
 			taglist = taglist + '<a class="bookmark_tag" href="#">' + escapeHTML(tags[i]) + '</a> ';
 	}
-	if(!hasProtocol(bookmark.url)) {
+	if(bookmark.url && !hasProtocol(bookmark.url)) {
 		bookmark.url = 'http://' + bookmark.url;
 	}
 	
@@ -283,6 +299,7 @@ function updateBookmarksList(bookmark, position) {
 	if(! bookmark.title)
 		bookmark.title ='';
 
+	bookmark.type = bookmark.url == '' ? 'folder' : 'file';
 	html = tmpl("item_tmpl", bookmark);
 	if(position == "prepend") {
 		$('.bookmarks_list').prepend(html);
@@ -296,6 +313,11 @@ function updateBookmarksList(bookmark, position) {
 	}
 	line.find('a.bookmark_tag').bind('click', addFilterTag);
 	line.find('.bookmark_link').click(recordClick);
+	line.find('.bookmark_link.folder').bind('click', function() { 
+		$('.bookmarks_list').empty();
+		bookmarks_page = 0;
+		getBookmarks(bookmark.id);
+	});
 	line.find('.bookmark_delete').click(delBookmark);
 	line.find('.bookmark_edit').click(editBookmark);
 	

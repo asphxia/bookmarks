@@ -78,24 +78,26 @@ class OC_Bookmarks_Bookmarks{
 	 * @param limit number of item to return (default 10) if -1 or false then all item are returned
 	 * @return void
 	 */
-	public static function findBookmarks($offset, $sqlSortColumn, $filters, $filterTagOnly, $limit = 10) {
+	public static function findBookmarks($offset, $sqlSortColumn, $filters, $filterTagOnly, $limit = 100, $parent = null) {
 		$CONFIG_DBTYPE = OCP\Config::getSystemValue( 'dbtype', 'sqlite' );
 		if(is_string($filters)) $filters = array($filters);
 		if(! in_array($sqlSortColumn, array('id', 'url', 'title', 'user_id',
 			'description', 'public', 'added', 'lastmodified','clickcount',))) {
 			$sqlSortColumn = 'bookmarks_sorting_recent';
 		}
+		$parent = intval($parent) == null ? " IS NULL " : " = " . intval($parent);
+
 		$params=array(OCP\USER::getUser());
 
 		if($CONFIG_DBTYPE == 'pgsql') {
 			$sql = "SELECT * FROM (SELECT *, (select array_to_string(array_agg(`tag`),'') from `*PREFIX*bookmarks_tags` where `bookmark_id` = `b`.`id`) as `tags`
 				FROM `*PREFIX*bookmarks` `b`
-				WHERE `user_id` = ? ) as `x` WHERE true ";
+				WHERE `user_id` = ? AND `parent` " . $parent . " ) as `x` WHERE true ";
 		}
 		else {
 			$sql = "SELECT *, (SELECT GROUP_CONCAT(`tag`) from `*PREFIX*bookmarks_tags` WHERE `bookmark_id` = `b`.`id`) as `tags`
 				FROM `*PREFIX*bookmarks` `b`
-				WHERE `user_id` = ? ";
+				WHERE `user_id` = ? AND `parent` " . $parent . " ";
 		}
 
 		if($filterTagOnly) {
@@ -316,15 +318,16 @@ class OC_Bookmarks_Bookmarks{
 	 * @param boolean $is_public True if the bookmark is publishable to not registered users
 	 * @return int The id of the bookmark created
 	 */
-	public static function addBookmark($url, $title, $tags=array(), $description='', $is_public=false) {
+	public static function addBookmark($url, $title, $tags=array(), $description='', $is_public=false, $parent=null) {
 		$is_public = $is_public ? 1 : 0;
 		$enc_url = htmlspecialchars_decode($url);
 		$_ut = self::getNowValue();
 		// Change lastmodified date if the record if already exists
 		$sql = "SELECT * from  `*PREFIX*bookmarks` WHERE `url` = ? AND `user_id` = ?";
 		$query = OCP\DB::prepare($sql, 1);
-		$result = $query->execute(array($enc_url, OCP\USER::getUser()));
-		if ($row = $result->fetchRow()){
+		$result = $query->execute(array($enc_url, OCP\USER::getUser()));		
+		// FIX Folders won't be updated
+		if (!empty($url) && $row = $result->fetchRow()){
 			$params = array();
 			$title_str = '';
 			if(trim($title) != '') { // Do we replace the old title
@@ -345,8 +348,8 @@ class OC_Bookmarks_Bookmarks{
 		}
 		$query = OCP\DB::prepare("
 			INSERT INTO `*PREFIX*bookmarks`
-			(`url`, `title`, `user_id`, `public`, `added`, `lastmodified`, `description`)
-			VALUES (?, ?, ?, ?, $_ut, $_ut, ?)
+			(`url`, `title`, `user_id`, `public`, `added`, `lastmodified`, `description`, `parent`)
+			VALUES (?, ?, ?, ?, $_ut, $_ut, ?, ?)
 			");
 
 		$params=array(
@@ -355,6 +358,7 @@ class OC_Bookmarks_Bookmarks{
 			OCP\USER::getUser(),
 			$is_public,
 			$description,
+            $parent
 		);
 		$query->execute($params);
 
@@ -400,24 +404,32 @@ class OC_Bookmarks_Bookmarks{
 	public static function importFile($file){
 		libxml_use_internal_errors(true);
 		$dom = new domDocument();
-
 		$dom->loadHTMLFile($file);
-		$links = $dom->getElementsByTagName('a');
+		$xpath = new DOMXPath($dom);
+
+		$links = $xpath->query('descendant::*[not(*)]');
+
+		$parents = array();
 
 		OCP\DB::beginTransaction();
 		foreach($links as $link) {
-			$title = $link->nodeValue;
+			$title = trim($link->nodeValue);
 			$ref = $link->getAttribute("href");
+			if (!$title && empty($ref)) continue;
 			$tag_str = '';
 			if($link->hasAttribute("tags"))
 				$tag_str = $link->getAttribute("tags");
 			$tags = explode(',', $tag_str);
 
 			$desc_str = '';
-			if($link->hasAttribute("description"))
-				$desc_str = $link->getAttribute("description");
+			if(trim($link->hasAttribute("description")))
+				$desc_str = trim($link->getAttribute("description"));
 
-			self::addBookmark($ref, $title, $tags,$desc_str );
+			$depth = $xpath->evaluate('count(ancestor::dl)', $link);
+			$parent = isset($parents[$depth - 2]) ? $parents[$depth - 2] : null;
+
+			$id = self::addBookmark($ref, $title, $tags, $desc_str, 1, $parent);
+			$parents[$depth - 1] = $id;
 		}
 		OCP\DB::commit();
 		return array();

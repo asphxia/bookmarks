@@ -16,6 +16,14 @@
 				<length>4</length>
 			</field>
 			<field>
+				<name>parent</name>
+				<type>integer</type>
+				<autoincrement>0</autoincrement>
+				<default></default>
+				<notnull>false</notnull>
+				<length>4</length>
+			</field>
+			<field>
 				<name>url</name>
 				<type>text</type>
 				<default></default>
@@ -73,7 +81,7 @@
 				<unsigned>true</unsigned>
 				<length>4</length>
 			</field>
-			
+
 			<index>
 				<name>id</name>
 				<unique>true</unique>
@@ -82,9 +90,17 @@
 					<sorting>descending</sorting>
 				</field>
 			</index>
+			<index>
+				<name>parent</name>
+				<unique>false</unique>
+				<field>
+					<name>parent</name>
+					<sorting>descending</sorting>
+				</field>
+			</index>
 		</declaration>
 	</table>
-	
+
 	<table>
 		<name>*dbprefix*bookmarks_tags</name>
 		<declaration>
@@ -93,7 +109,7 @@
 				<type>integer</type>
 				<length>64</length>
 			</field>
-			
+
 			<field>
 				<name>tag</name>
 				<type>text</type>
@@ -116,4 +132,4 @@
 		</declaration>
 	</table>
 </database>
-			
+

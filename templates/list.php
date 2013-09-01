@@ -59,6 +59,13 @@ function bookmarklet(){
 			<div class="bkm_hint"><a href="#" id="firstrun_setting"><?php p($l->t('You can also try to import a bookmark file'));?></a></div>
 		</div>
 	</div>
+	<div id="controls">
+		<div class="crumb ui-droppable" data-dir="">
+			<a id="home" href="#">
+				<img src="/core/img/places/home.svg" class="svg">
+			</a>
+		</div>
+		<div id="upload" class="button"><a id="up" href="#" class="svg"></a></div></div>
 	<div class="bookmarks_list"></div>
 </div>
 <script type="text/javascript" src="<?php print_unescaped(OC_Helper::linkTo('bookmarks/js', 'full_tags.php'));?>"></script>

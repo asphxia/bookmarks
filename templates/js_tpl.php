@@ -1,5 +1,5 @@
 <script type="text/html" id="item_tmpl">
-		<div class="bookmark_single" data-id="<&= id &>">
+		<div class="bookmark_single <&= type &>" data-id="<&= id &>">
 				<p class="bookmark_actions">
 					<span class="bookmark_delete">
 						<img class="svg" src="<?php print_unescaped(OCP\image_path("", "actions/delete.svg"));?>"
@@ -7,11 +7,12 @@
 					</span>&nbsp;
 				</p>
 				<p class="bookmark_title">
-					<a href="<&= encodeURI(url) &>" target="_blank" class="bookmark_link">
+					<a href="<&= type == 'folder' ? '#' : encodeURI(url) &>" <&= type == 'file' ? 'target=_blank' : '' &> class="bookmark_link <&= type &>">
 						<&= escapeHTML(title == '' ? encodeURI(url) : title ) &>
 					</a>
 					<span class="bookmark_edit bookmark_edit_btn">
 						<img class="svg" src="<?php print_unescaped(OCP\image_path("", "actions/rename.svg"));?>" title="<?php p($l->t('Edit'));?>">
+						<a href="#"><?php p($l->t('Edit'));?></a>
 					</span>
 				</p>
 				<span class="bookmark_desc"><&= escapeHTML(description)&> </span>
