@@ -85,19 +85,19 @@ class OC_Bookmarks_Bookmarks{
 			'description', 'public', 'added', 'lastmodified','clickcount',))) {
 			$sqlSortColumn = 'bookmarks_sorting_recent';
 		}
-		$parent = intval($parent) == null ? " IS NULL " : " = " . intval($parent);
-
+		$parent = $parent == null ? " IS NULL " : " = " . (int)$parent;
+		$parent = $filterTagOnly ? "" : " AND `parent`" . $parent;
 		$params=array(OCP\USER::getUser());
 
 		if($CONFIG_DBTYPE == 'pgsql') {
 			$sql = "SELECT * FROM (SELECT *, (select array_to_string(array_agg(`tag`),'') from `*PREFIX*bookmarks_tags` where `bookmark_id` = `b`.`id`) as `tags`
 				FROM `*PREFIX*bookmarks` `b`
-				WHERE `user_id` = ? AND `parent` " . $parent . " ) as `x` WHERE true ";
+				WHERE `user_id` = ? " . $parent . " ) as `x` WHERE true ";
 		}
 		else {
 			$sql = "SELECT *, (SELECT GROUP_CONCAT(`tag`) from `*PREFIX*bookmarks_tags` WHERE `bookmark_id` = `b`.`id`) as `tags`
 				FROM `*PREFIX*bookmarks` `b`
-				WHERE `user_id` = ? AND `parent` " . $parent . " ";
+				WHERE `user_id` = ? " . $parent . " ";
 		}
 
 		if($filterTagOnly) {

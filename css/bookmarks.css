@@ -536,3 +536,23 @@ li:hover em { display : none; }
 	opacity: 0.65;
 }
 
+.bookmark_title.desc>a, .bookmark_title.tagged>a {
+	max-width: 15em;
+	width: 15em;
+}
+.bookmark_tags {
+	height: 20px;
+	width: 450px;
+	overflow: hidden;
+	position: relative;
+	top: 5px;
+	left: 0;
+	display: inline-block;
+}
+.bookmark_tags>div {
+	position: absolute;
+	top: 0;
+	left: 0;
+	overflow: hidden;
+	width: 500px;
+}

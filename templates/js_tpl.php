@@ -6,8 +6,8 @@
 							title="<?php p($l->t('Delete'));?>">
 					</span>&nbsp;
 				</p>
-				<p class="bookmark_title">
-					<a href="<&= type == 'folder' ? '#' : encodeURI(url) &>" <&= type == 'file' ? 'target=_blank' : '' &> class="bookmark_link <&= type &>">
+				<p class="bookmark_title <&= description != '' ? 'desc' : '' &> <&= tags != '' ? 'tagged' : '' &>">
+					<a href="<&= type == 'folder' ? '#' : encodeURI(url) &>" <&= type == 'file' ? 'target="_blank"' : '' &> class="bookmark_link <&= type &>">
 						<&= escapeHTML(title == '' ? encodeURI(url) : title ) &>
 					</a>
 					<span class="bookmark_edit bookmark_edit_btn">
@@ -15,7 +15,7 @@
 						<a href="#"><?php p($l->t('Edit'));?></a>
 					</span>
 				</p>
-				<span class="bookmark_desc"><&= escapeHTML(description)&> </span>
+				<span class="bookmark_desc <&= description != '' ? 'desc' : '' &>"><&= escapeHTML(description)&> </span>
 				<span class="bookmark_date"><&= formatDate(added_date) &></span>
 			</div>
 </script>

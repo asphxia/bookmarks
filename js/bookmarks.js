@@ -309,7 +309,7 @@ function updateBookmarksList(bookmark, position) {
 	line = $('div[data-id="'+ bookmark.id +'"]');
 	line.data('record', bookmark);
 	if(taglist != '') {
-		line.append('<p class="bookmark_tags">' + taglist + '</p>');
+		line.append('<div class="bookmark_tags"><div>' + taglist + '</div></div>');
 	}
 	line.find('a.bookmark_tag').bind('click', addFilterTag);
 	line.find('.bookmark_link').click(recordClick);
