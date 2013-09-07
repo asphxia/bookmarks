@@ -80,7 +80,7 @@ function filterTagsChanged()
 	$('#bookmarkFilterTag').val($('#tag_filter input:hidden').val());
 	$('.bookmarks_list').empty();
 	bookmarks_page = 0;
-	getBookmarks();
+	getBookmarks(breadcrumb.pop());
 }
 function getBookmarks(parent) {
 	if(bookmarks_loading) {

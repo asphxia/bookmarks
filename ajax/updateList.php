@@ -38,7 +38,7 @@ else { // type == bookmark
 	$filterTag = OC_Bookmarks_Bookmarks::analyzeTagRequest(isset($_GET['tag']) ? $_GET['tag'] : '');
 
 	$offset = isset($_GET['page']) ? intval($_GET['page']) * 10 : 0;
-	$parent = isset($_GET['parent']) ? intval($_GET['parent']) : null;
+	$parent = isset($_GET['parent']) ? intval($_GET['parent']) : 0;
 
 	$sort = isset($_GET['sort']) ? ($_GET['sort']) : 'bookmarks_sorting_recent';
 	if($sort == 'bookmarks_sorting_clicks') {
@@ -46,7 +46,7 @@ else { // type == bookmark
 	} else {
 		$sqlSortColumn = 'lastmodified';
 	}
-	$bookmarks = OC_Bookmarks_Bookmarks::findBookmarks($offset, $sqlSortColumn, $filterTag, true, 100, $parent );
+	$bookmarks = OC_Bookmarks_Bookmarks::findBookmarks($offset, $sqlSortColumn, $filterTag, !empty($filterTag), 100, $parent);
 	OCP\JSON::success(array('data' => $bookmarks));
 
 }

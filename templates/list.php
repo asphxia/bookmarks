@@ -62,7 +62,7 @@ function bookmarklet(){
 	<div id="controls">
 		<div class="crumb ui-droppable" data-dir="">
 			<a id="home" href="#">
-				<img src="/core/img/places/home.svg" class="svg">
+				<img src="<?php print_unescaped(OCP\Util::imagePath('core', 'places/home.svg')); ?>" class="svg">
 			</a>
 		</div>
 		<div id="upload" class="button"><a id="up" href="#" class="svg"></a></div></div>

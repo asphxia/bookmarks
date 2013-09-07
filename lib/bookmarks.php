@@ -78,15 +78,14 @@ class OC_Bookmarks_Bookmarks{
 	 * @param limit number of item to return (default 10) if -1 or false then all item are returned
 	 * @return void
 	 */
-	public static function findBookmarks($offset, $sqlSortColumn, $filters, $filterTagOnly, $limit = 100, $parent = null) {
+	public static function findBookmarks($offset, $sqlSortColumn, $filters, $filterTagOnly, $limit = 100, $parent = 0) {
 		$CONFIG_DBTYPE = OCP\Config::getSystemValue( 'dbtype', 'sqlite' );
 		if(is_string($filters)) $filters = array($filters);
 		if(! in_array($sqlSortColumn, array('id', 'url', 'title', 'user_id',
 			'description', 'public', 'added', 'lastmodified','clickcount',))) {
 			$sqlSortColumn = 'bookmarks_sorting_recent';
 		}
-		$parent = $parent == null ? " IS NULL " : " = " . (int)$parent;
-		$parent = $filterTagOnly ? "" : " AND `parent`" . $parent;
+		$parent = $filterTagOnly ? "" : " AND `parent` = " . (int)$parent;
 		$params=array(OCP\USER::getUser());
 
 		if($CONFIG_DBTYPE == 'pgsql') {
@@ -318,7 +317,7 @@ class OC_Bookmarks_Bookmarks{
 	 * @param boolean $is_public True if the bookmark is publishable to not registered users
 	 * @return int The id of the bookmark created
 	 */
-	public static function addBookmark($url, $title, $tags=array(), $description='', $is_public=false, $parent=null) {
+	public static function addBookmark($url, $title, $tags=array(), $description='', $is_public=false, $parent=0, $icon=null) {
 		$is_public = $is_public ? 1 : 0;
 		$enc_url = htmlspecialchars_decode($url);
 		$_ut = self::getNowValue();
@@ -348,8 +347,8 @@ class OC_Bookmarks_Bookmarks{
 		}
 		$query = OCP\DB::prepare("
 			INSERT INTO `*PREFIX*bookmarks`
-			(`url`, `title`, `user_id`, `public`, `added`, `lastmodified`, `description`, `parent`)
-			VALUES (?, ?, ?, ?, $_ut, $_ut, ?, ?)
+			(`url`, `title`, `user_id`, `public`, `added`, `lastmodified`, `description`, `parent`, `icon`)
+			VALUES (?, ?, ?, ?, $_ut, $_ut, ?, ?, ?)
 			");
 
 		$params=array(
@@ -358,7 +357,8 @@ class OC_Bookmarks_Bookmarks{
 			OCP\USER::getUser(),
 			$is_public,
 			$description,
-            $parent
+            $parent,
+            $icon
 		);
 		$query->execute($params);
 
@@ -413,9 +413,13 @@ class OC_Bookmarks_Bookmarks{
 
 		OCP\DB::beginTransaction();
 		foreach($links as $link) {
+
+			if ($link->nodeName == 'title') continue;
+
 			$title = trim($link->nodeValue);
 			$ref = $link->getAttribute("href");
 			if (!$title && empty($ref)) continue;
+
 			$tag_str = '';
 			if($link->hasAttribute("tags"))
 				$tag_str = $link->getAttribute("tags");
@@ -425,10 +429,19 @@ class OC_Bookmarks_Bookmarks{
 			if(trim($link->hasAttribute("description")))
 				$desc_str = trim($link->getAttribute("description"));
 
-			$depth = $xpath->evaluate('count(ancestor::dl)', $link);
-			$parent = isset($parents[$depth - 2]) ? $parents[$depth - 2] : null;
+			$icon = '';
+			if ($link->hasAttribute('icon_uri')) {
+				$icon = $link->getAttribute('icon_uri');
 
-			$id = self::addBookmark($ref, $title, $tags, $desc_str, 1, $parent);
+			} else if ($link->hasAttribute('icon')) {
+				$icon = $link->getAttribute('icon');
+
+			}
+
+			$depth = $xpath->evaluate('count(ancestor::dl)', $link);
+			$parent = isset($parents[$depth - 2]) ? $parents[$depth - 2] : 0;
+
+			$id = self::addBookmark($ref, $title, $tags, $desc_str, 1, $parent, $icon);
 			$parents[$depth - 1] = $id;
 		}
 		OCP\DB::commit();

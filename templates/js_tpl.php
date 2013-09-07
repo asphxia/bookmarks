@@ -1,5 +1,8 @@
 <script type="text/html" id="item_tmpl">
-		<div class="bookmark_single <&= type &>" data-id="<&= id &>">
+		<div class="bookmark_single <&= type &>"
+		<& if (icon != '') { &>
+			style="background-image: url(<&= icon &>);"
+		<& } &> data-id="<&= id &>">
 				<p class="bookmark_actions">
 					<span class="bookmark_delete">
 						<img class="svg" src="<?php print_unescaped(OCP\image_path("", "actions/delete.svg"));?>"

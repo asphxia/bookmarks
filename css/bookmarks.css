@@ -459,15 +459,19 @@ li:hover em { display : none; }
 #add_url {
 	width:14em;
 }
-.bookmark_single{
+.bookmark_single {
 	height: 28px;
 	min-height: 28px;
 }
-.bookmark_single.folder{
-	background-image:url(/core/img/filetypes/folder.png);background-position: 1em .5em;
+.bookmark_single.folder, .bookmark_single.file {
+	background-position: 1em .5em;
 	background-repeat: no-repeat;
 }
-.bookmark_title{
+.bookmark_single.folder {
+	background-image:url(%webroot%/core/img/filetypes/folder.png);
+}
+
+.bookmark_title {
 	margin-top: 3px;
 }
 .bookmark_date {
@@ -493,7 +497,7 @@ li:hover em { display : none; }
 
 #rightcontent #controls {
 	margin-top: 24px;
-	left: 336px;
+	left: 320px;
 }
 .bookmark_edit.bookmark_edit_btn {
 	position:absolute;
@@ -531,7 +535,7 @@ li:hover em { display : none; }
 	height: 27px;
 	cursor: pointer;
 	z-index: 10;
-	background-image: url('/core/img/actions/upload.svg');
+	background-image: url('%webroot%/core/img/actions/upload.svg');
 	background-repeat: no-repeat; background-position: 7px 1px;
 	opacity: 0.65;
 }
